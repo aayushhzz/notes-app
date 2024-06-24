@@ -4,7 +4,7 @@ import { BrowserRouter ,Routes, Route } from "react-router-dom";
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import About from './components/About';
-
+import NoteState from './context/notes/noteState.js';
 const routes = [
   <Route path="/" element={<Home />} />,
   <Route path="/about" element={<About />} />,
@@ -12,10 +12,14 @@ const routes = [
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>{routes}</Routes>
-    </BrowserRouter>
+  <NoteState>
+      <BrowserRouter>
+        <Navbar />
+        <div className="container">
+          <Routes>{routes}</Routes>
+        </div>
+      </BrowserRouter>
+    </NoteState>
   );
 }
 
