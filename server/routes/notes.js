@@ -5,10 +5,10 @@ const Note = require('../models/Notes');
 const { body, validationResult } = require('express-validator');
 
 //fetch all notes endpoint /api/notes/fetchallnotes
-router.get('/fetchallnotes', fetchUser,async (req, res) => {
+router.get('/fetchallnotes', fetchUser, async (req, res) => {
     try{
     const notes = await Note.find({user : req.user});
-    res.json(notes);
+    await res.send(notes);
     }
     catch(error){
         console.error(error.message);
@@ -39,7 +39,6 @@ router.post('/addnote', fetchUser, [
 });
 
 //update a note endpoint /api/notes/updatenote/:id using put request
-
 router.put('/updatenote/:id', fetchUser, async (req, res) => {
     const { title, description, tag } = req.body;
     try {

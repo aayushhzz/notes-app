@@ -1,8 +1,19 @@
-import React from "react";
-import { Link ,useLocation} from "react-router-dom";
+import React,{useEffect, useState} from "react";
+import { Link ,useLocation,useNavigate} from "react-router-dom";
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [name,setName] = useState(localStorage.getItem('name'));
+  const Logout = ()=>{
+    navigate('/login');
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('name');
+    setName(null);
+  }
+  useEffect(()=>{
+    setName(localStorage.getItem('name'));
+  },[location.pathname]);
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
@@ -33,17 +44,15 @@ const Navbar = () => {
               </Link>
             </li>
           </ul>
-          <form className="d-flex" role="search">
-            <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button className="btn btn-outline-success" type="submit">
-              Search
-            </button>
-          </form>
+          {!localStorage.getItem('auth-token') ? <form className="d-flex" role="search">
+          <Link className="btn btn-primary mx-1" to={'/login'} role="button">Login</Link>
+          <Link className="btn btn-primary mx-1" to={'/signup'} role="button">Signup</Link>
+          </form>:(
+            <>
+            {name!==null && <p className="mx-2 my-auto" style={{"color":"white"}}aria-current="page">{name}</p>}
+            <button onClick={Logout} className="btn btn-primary mx-1">Logout</button>
+            </>
+          )}
         </div>
       </div>
     </nav>

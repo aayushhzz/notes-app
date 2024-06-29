@@ -1,78 +1,66 @@
 import React,{useState} from "react";
 import noteContext from "./noteContext.js";
+import axios from 'axios';
 
+const host = "http://localhost:4999";
 
 const NoteState = (props) => {
-    const notesInitial =[
-        {
-          "_id": "66771e5321a72de36f303226",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-22T18:56:19.009Z",
-          "__v": 0
-        },
-        {
-          "_id": "66771e5521a72de36f303228",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-22T18:56:21.780Z",
-          "__v": 0
-        },
-        {
-          "_id": "66771e5621a72de36f30322a",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-22T18:56:22.261Z",
-          "__v": 0
-        },
-        {
-          "_id": "66771e5621a72de36f30322c",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-22T18:56:22.660Z",
-          "__v": 0
-        },
-        {
-          "_id": "6677ce6d0003cdcc79e0a844",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-23T07:27:41.120Z",
-          "__v": 0
-        },
-        {
-          "_id": "6677ce6f0003cdcc79e0a846",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-23T07:27:43.698Z",
-          "__v": 0
-        },
-        {
-          "_id": "6677ce700003cdcc79e0a848",
-          "user": "6676c46f537a093fb110a152",
-          "title": "this is title",
-          "description": "please god banne do mujhe",
-          "tag": "godly",
-          "date": "2024-06-23T07:27:44.876Z",
-          "__v": 0
+  const [notes, setNotes] = useState([]);
+  const fetchAllNotes = async ()=>{
+    let response = await axios.get(`${host}/api/notes/fetchallnotes`,{
+      headers: {
+        'Content-Type': 'application/json',
+        'auth-token': localStorage.getItem('auth-token')
+      }
+    });
+    setNotes(response.data);
+  };
+    //Add a note
+    const addNote = async (title, description,tag)=>{
+      let response = await axios.post(`${host}/api/notes/addnote`,{title,description,tag},{
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('auth-token')
         }
-      ]
-
-    const [notes, setNotes] = useState(notesInitial);
-      
+      });
+      const note = response.data;
+      setNotes(notes.concat(note))
+    };
+    //Delete a note
+    const deleteNote = async (id)=>{
+      await axios.delete(`${host}/api/notes/deletenote/${id}`,{
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('auth-token')
+        }
+      });
+      setNotes(notes.filter((note)=>{return note._id!==id}))
+    };
+    //Edit a note
+    const editNote = async (id,title,description,tag)=>{
+      await axios.put(`${host}/api/notes/updatenote/${id}`,{title,description,tag},{
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('auth-token')
+        }
+      });
+      const newnotes = [];
+      for (let index = 0; index < notes.length; index++) {
+        const element = notes[index];
+        if(element._id===id){
+          element.title = title;
+          element.description = description;
+          element.tag = tag;
+          newnotes.push(element);
+        }
+        else{
+          newnotes.push(element);
+        }
+      }
+      setNotes(newnotes);
+    };
     return (
-        <noteContext.Provider value={{notes,setNotes}}>
+        <noteContext.Provider value={{notes,addNote,deleteNote,editNote,fetchAllNotes}}>
             {props.children}
         </noteContext.Provider>
     )
